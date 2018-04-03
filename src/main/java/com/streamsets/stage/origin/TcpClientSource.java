@@ -34,13 +34,19 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * This source is an example and does not actually read from anywhere.
  * It does however, generate generate a simple record with one field.
  */
 public abstract class TcpClientSource extends BaseSource {
-
+    public abstract String getIPAddress();
+    public abstract int getPort();
+    public abstract int getMaxBatchSize();
+    public abstract TcpCharacterSet gettcpCharacterSet();
+    public abstract int getStartCharacter();
+    public abstract int getEndCharacter();
     /**
      * Gives access to the UI configuration of the stage provided by the {@link TcpClientDSource} class.
      */
@@ -78,70 +84,51 @@ public abstract class TcpClientSource extends BaseSource {
         }
 
         int numRecords = 0;
-
+        maxBatchSize=getMaxBatchSize();
         // TODO: As the developer, implement your logic that reads from a data source in this method.
-
         // Create records and add to batch. Records must have a string id. This can include the source offset
         // or other metadata to help uniquely identify the record itself.
         boolean isAutoCharacter = false;
-        if(gettcpCharacterSet().toString().equals("AUTO")){
-            isAutoCharacter = true;
-        }
+        if(gettcpCharacterSet().toString().equals("AUTO")){ isAutoCharacter = true; }
+        int startCharacter = getStartCharacter();
+        int endCharacter = getEndCharacter();
         while (numRecords < maxBatchSize) {
-            Record record = getContext().createRecord("some-id::" + nextSourceOffset);
+            Record record = getContext().createRecord(String.valueOf(nextSourceOffset));
             Map<String, Field> map = new HashMap<>();
             try (Socket socket = new Socket(getIPAddress(), getPort())) {
                 InputStream input = socket.getInputStream();
                 InputStreamReader reader;
                 if (isAutoCharacter) { reader = new InputStreamReader(input); }
                 else{ reader = new InputStreamReader(input, gettcpCharacterSet().toString()); }
-
                 int character;
                 StringBuilder data = new StringBuilder();
-
                 boolean readFlag = false;
                 boolean readStart = false;
                 while ((character = reader.read()) != -1) {
-                    if (170 == character && !readStart) {
+                    if (startCharacter == character && !readStart) {
                         readFlag = true;
                         readStart = true;
                         continue;
                     }
-                    if (187 == character && readStart) {
-                        //readFlag = false;
+                    if (endCharacter == character && readStart) {
+                        data.deleteCharAt(data.length()-1);
+                        map.put("inputData", Field.create(String.valueOf(data)));
+                        record.set(Field.create(map));
+                        batchMaker.addRecord(record);
                         break;
                     }
                     if (readFlag) {
                         data.append(character);
+                        data.append(",");
                     }
                 }
-                //System.out.println(data);
-
-                map.put("FUCKINGdata", Field.create(String.valueOf(data)));
-                record.set(Field.create(map));
-                batchMaker.addRecord(record);
                 ++nextSourceOffset;
                 ++numRecords;
-            } catch (UnknownHostException ex) {
-
-                System.out.println("Server not found: " + ex.getMessage());
-
-            } catch (IOException ex) {
-
-                System.out.println("I/O error: " + ex.getMessage());
             }
-
-
+            catch (UnknownHostException ex) { System.out.println("Server not found: " + ex.getMessage()); }
+            catch (IOException ex) { System.out.println("I/O error: " + ex.getMessage()); }
         }
 
         return String.valueOf(nextSourceOffset);
     }
-
-    public abstract String getIPAddress();
-
-    public abstract int getPort();
-
-    public abstract int getMaxBatchSize();
-
-    public abstract TcpCharacterSet gettcpCharacterSet();
 }
