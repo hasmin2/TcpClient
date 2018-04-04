@@ -43,11 +43,8 @@ public abstract class CraneDataClientSource extends BaseSource {
     public abstract int getLoadcellStartCharacter();
     public abstract int getLoadcellEndCharacter();
     public abstract CraneDataCharacterSet getXPosCharacterSet();
-
     public abstract boolean hasXPosition();
-
     public abstract boolean hasYPosition();
-
     public abstract String getLoadcellIPAddress();
     public abstract int getLoadcellPort();
     public abstract int getMaxBatchSize();
@@ -99,11 +96,19 @@ public abstract class CraneDataClientSource extends BaseSource {
         while (numRecords < maxBatchSize) {
             Record record = getContext().createRecord(String.valueOf(nextSourceOffset));
             Map<String, Field> map = new HashMap<>();
-            try (Socket socket = new Socket(getLoadcellIPAddress(), getLoadcellPort())) {
-                InputStream input = socket.getInputStream();
+            //try (Socket socket = new Socket(getLoadcellIPAddress(), getLoadcellPort())) {
+            try {
+                LoadCell lc801 = new LoadCell(getLoadcellIPAddress(), getLoadcellPort(), getLoadcellCharacterSet().toString());
+                if(hasXPosition()){
+                    LaserDetector xPos801 = new LaserDetector(getLoadcellIPAddress(), getLoadcellPort(),getXPosCharacterSet().toString());
+                }
+                lc801.makeConnect();
+                String resValue = lc801.getValue(getLoadcellStartCharacter(), getLoadcellEndCharacter());
+                System.out.println(resValue);
+                /*InputStream input = socket.getInputStream();
                 InputStreamReader reader;
                 if (isAutoCharacter) { reader = new InputStreamReader(input); }
-                else{ reader = new InputStreamReader(input, getLoadcellIPAddress()); }
+                else{ reader = new InputStreamReader(input, getLoadcellCharacterSet().toString()); }
                 int character;
                 StringBuilder data = new StringBuilder();
                 boolean readFlag = false;
@@ -125,7 +130,7 @@ public abstract class CraneDataClientSource extends BaseSource {
                         data.append(character);
                         data.append(",");
                     }
-                }
+                }*/
                 ++nextSourceOffset;
                 ++numRecords;
             }

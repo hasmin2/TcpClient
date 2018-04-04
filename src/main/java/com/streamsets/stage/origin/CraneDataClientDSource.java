@@ -37,7 +37,7 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             required = true,
             type = ConfigDef.Type.BOOLEAN,
             defaultValue = "false",
-            label = "has X Axis Laser Position Detector?",
+            label = "Has X Axis Laser Position Detector?",
             displayPosition = 10,
             group = "Connectivity",
             description = "Check if the Crane has X Laser Position Detector"
@@ -47,7 +47,7 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             required = true,
             type = ConfigDef.Type.BOOLEAN,
             defaultValue = "false",
-            label = "has Y Axis Laser Position Detector?",
+            label = "Has Y Axis Laser Position Detector?",
             displayPosition = 10,
             group = "Connectivity",
             description = "Check if the Crane has Y Axis Laser Position Detector"
@@ -96,7 +96,7 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             defaultValue = "",
             label = "CharacterSet",
             displayPosition = 10,
-            group = "LoadCell",
+            group = "Loadcell",
             description = "Define CharacterSets for incoming data"
     )
     @ValueChooserModel(CraneDataCharacterSetChooserValues.class)
@@ -135,7 +135,9 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             label = "Laser meter CharacterSet",
             displayPosition = 10,
             group = "XPosition",
-            description = "Define CharacterSets for XPostion incoming data"
+            description = "Define CharacterSets for XPostion incoming data",
+            dependsOn = "hasXPosition",
+            triggeredByValue = "true"
     )
 
     @ValueChooserModel(CraneDataCharacterSetChooserValues.class)
