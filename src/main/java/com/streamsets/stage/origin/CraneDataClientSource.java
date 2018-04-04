@@ -24,7 +24,6 @@ import com.streamsets.pipeline.api.Field;
 import com.streamsets.pipeline.api.Record;
 import com.streamsets.pipeline.api.StageException;
 import com.streamsets.pipeline.api.base.BaseSource;
-import com.streamsets.stage.lib.Errors;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,21 +33,26 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * This source is an example and does not actually read from anywhere.
  * It does however, generate generate a simple record with one field.
  */
-public abstract class TcpClientSource extends BaseSource {
-    public abstract String getIPAddress();
-    public abstract int getPort();
+public abstract class CraneDataClientSource extends BaseSource {
+    public abstract CraneDataCharacterSet getLoadcellCharacterSet();
+    public abstract int getLoadcellStartCharacter();
+    public abstract int getLoadcellEndCharacter();
+    public abstract CraneDataCharacterSet getXPosCharacterSet();
+
+    public abstract boolean hasXPosition();
+
+    public abstract boolean hasYPosition();
+
+    public abstract String getLoadcellIPAddress();
+    public abstract int getLoadcellPort();
     public abstract int getMaxBatchSize();
-    public abstract TcpCharacterSet gettcpCharacterSet();
-    public abstract int getStartCharacter();
-    public abstract int getEndCharacter();
     /**
-     * Gives access to the UI configuration of the stage provided by the {@link TcpClientDSource} class.
+     * Gives access to the UI configuration of the stage provided by the {@link CraneDataClientDSource} class.
      */
     @Override
     protected List<ConfigIssue> init() {
@@ -89,17 +93,17 @@ public abstract class TcpClientSource extends BaseSource {
         // Create records and add to batch. Records must have a string id. This can include the source offset
         // or other metadata to help uniquely identify the record itself.
         boolean isAutoCharacter = false;
-        if(gettcpCharacterSet().toString().equals("AUTO")){ isAutoCharacter = true; }
-        int startCharacter = getStartCharacter();
-        int endCharacter = getEndCharacter();
+        if(getLoadcellCharacterSet().toString().equals("AUTO")){ isAutoCharacter = true; }
+        int startCharacter = getLoadcellStartCharacter();
+        int endCharacter = getLoadcellEndCharacter();
         while (numRecords < maxBatchSize) {
             Record record = getContext().createRecord(String.valueOf(nextSourceOffset));
             Map<String, Field> map = new HashMap<>();
-            try (Socket socket = new Socket(getIPAddress(), getPort())) {
+            try (Socket socket = new Socket(getLoadcellIPAddress(), getLoadcellPort())) {
                 InputStream input = socket.getInputStream();
                 InputStreamReader reader;
                 if (isAutoCharacter) { reader = new InputStreamReader(input); }
-                else{ reader = new InputStreamReader(input, gettcpCharacterSet().toString()); }
+                else{ reader = new InputStreamReader(input, getLoadcellIPAddress()); }
                 int character;
                 StringBuilder data = new StringBuilder();
                 boolean readFlag = false;
@@ -128,7 +132,8 @@ public abstract class TcpClientSource extends BaseSource {
             catch (UnknownHostException ex) { System.out.println("Server not found: " + ex.getMessage()); }
             catch (IOException ex) { System.out.println("I/O error: " + ex.getMessage()); }
         }
-
         return String.valueOf(nextSourceOffset);
     }
+
+
 }

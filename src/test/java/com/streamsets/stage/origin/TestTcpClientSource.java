@@ -32,11 +32,13 @@ public class TestTcpClientSource {
 
     @Test
     public void testOrigin() throws Exception {
-        SourceRunner runner = new SourceRunner.Builder(TcpClientDSource.class)
+        SourceRunner runner = new SourceRunner.Builder(CraneDataClientDSource.class)
                 .addConfiguration("ipAddress", "10.50.120.153")
                 .addConfiguration("port", 4001)
-                .addConfiguration("tcpCharacterSet", TcpCharacterSet.ISO8859_1)
-                .addConfiguration("maxBatchSize", 1000)
+                .addConfiguration("tcpCharacterSet", CraneDataCharacterSet.ISO8859_1)
+                .addConfiguration("maxBatchSize", 1)
+                .addConfiguration("startCharacter", 170)
+                .addConfiguration("endCharacter", 187)
                 .addOutputLane("lane")
                 .build();
 
@@ -48,8 +50,8 @@ public class TestTcpClientSource {
             Assert.assertEquals("5", output.getNewOffset());
             List<Record> records = output.getRecords().get("lane");
             Assert.assertEquals(5, records.size());
-            Assert.assertTrue(records.get(0).has("/FUCKINGdata"));
-            Assert.assertEquals("2151501", records.get(0).get("/FUCKINGdata").getValueAsString());
+            Assert.assertTrue(records.get(0).has("/inputData"));
+            Assert.assertEquals("2151501", records.get(0).get("/inputData").getValueAsString());
 
         } finally {
             runner.runDestroy();

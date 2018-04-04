@@ -24,9 +24,10 @@ import com.streamsets.pipeline.api.Label;
 
 @GenerateResourceBundle
 public enum Groups implements Label {
-    Ethernet("Ethernet"),
-    Communications("Communications");
-
+    Connectivity("Connectivity"),
+    Loadcell("Loadcell"),
+    XPosition("XPosition"),
+    YPosition("YPostion");
     private final String label;
 
     private Groups(String label) {
