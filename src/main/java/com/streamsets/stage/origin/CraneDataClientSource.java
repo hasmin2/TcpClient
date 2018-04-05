@@ -108,11 +108,13 @@ public abstract class CraneDataClientSource extends BaseSource {
                     //System.out.println(xPos801.getValue());
                     map.put("xPosData", Field.create(xPos801.getValue()));
                 }
-                /*if(hasYPosition()){
+                if(hasYPosition()){
                     LaserDetector yPos801 = new LaserDetector(getYPosIpAddress(), getYPosPort(),getYPosCharacterSet().toString());
                     //System.out.println(xPos801.getValue());
                     map.put("XPosData", Field.create(yPos801.getValue()));
-                }*/
+                }
+                map.put("hasxPos", Field.create(hasXPosition()));
+                map.put("hasyPos", Field.create(hasYPosition()));
                 record.set(Field.create(map));
                 batchMaker.addRecord(record);
                 //System.out.println(resValue);
@@ -126,4 +128,9 @@ public abstract class CraneDataClientSource extends BaseSource {
     }
 
 
+    public abstract String getYPosIpAddress();
+
+    public abstract int getYPosPort();
+
+    public abstract CraneDataCharacterSet getYPosCharacterSet();
 }

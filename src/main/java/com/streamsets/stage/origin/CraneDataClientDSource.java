@@ -170,6 +170,48 @@ public class CraneDataClientDSource extends CraneDataClientSource {
     public CraneDataCharacterSet xPosCharacterSet = CraneDataCharacterSet.AUTO;
 ///////////////////////////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    @ConfigDef(
+            required = true,
+            type = ConfigDef.Type.STRING,
+            defaultValue = "localhost",
+            label = "Laser Meter Y Position IP",
+            displayPosition = 10,
+            group = "XPosition",
+            description = "Laser Meter Y Position IP Address for the HostConnect",
+            dependsOn = "hasXPosition",
+            triggeredByValue = "true"
+    )
+    public String yPosIpAddress;
+    @ConfigDef(
+            required = true,
+            type = ConfigDef.Type.NUMBER,
+            defaultValue = "4001",
+            label = "Laser Meter Y Position Port",
+            displayPosition = 10,
+            group = "YPosition",
+            description = "Laser Meter Y Position Port number for the TcpConnect (1~65535 value only)",
+            min = 1,
+            max = 65535,
+            dependsOn = "hasYPosition",
+            triggeredByValue = "true"
+    )
+    public int yPosPort;
+
+    @ConfigDef(
+            required = true,
+            type = ConfigDef.Type.MODEL,
+            defaultValue = "",
+            label = "Laser meter CharacterSet",
+            displayPosition = 10,
+            group = "YPosition",
+            description = "Define CharacterSets for Laser Meter Y Position incoming data",
+            dependsOn = "hasYPosition",
+            triggeredByValue = "true"
+    )
+    @ValueChooserModel(CraneDataCharacterSetChooserValues.class)
+    public CraneDataCharacterSet yPosCharacterSet = CraneDataCharacterSet.AUTO;
+///////////////////////////////////////////////////////////////////////////////////
 
     /** {@inheritDoc} */
     @Override
@@ -194,4 +236,10 @@ public class CraneDataClientDSource extends CraneDataClientSource {
     public int getXPosPort() { return xPosPort; }
     @Override
     public CraneDataCharacterSet getXPosCharacterSet() { return xPosCharacterSet; }
+    @Override
+    public String getYPosIpAddress() { return yPosIpAddress; }
+    @Override
+    public int getYPosPort() { return yPosPort; }
+    @Override
+    public CraneDataCharacterSet getYPosCharacterSet() { return yPosCharacterSet; }
 }
