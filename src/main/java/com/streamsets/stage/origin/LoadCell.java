@@ -1,15 +1,11 @@
 package com.streamsets.stage.origin;
 
-import com.streamsets.pipeline.api.Field;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.Map;
 
 public class LoadCell {
-    private Map<String, Field> map;
     private String hostName, characterSet;
     private int port;
     private InputStreamReader reader;

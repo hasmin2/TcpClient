@@ -52,6 +52,10 @@ public abstract class CraneDataClientSource extends BaseSource {
     public abstract String getLoadcellIPAddress();
     public abstract int getLoadcellPort();
     public abstract int getMaxBatchSize();
+    public abstract String getYPosIpAddress();
+    public abstract int getYPosPort();
+    public abstract CraneDataCharacterSet getYPosCharacterSet();
+
     /**
      * Gives access to the UI configuration of the stage provided by the {@link CraneDataClientDSource} class.
      */
@@ -84,10 +88,7 @@ public abstract class CraneDataClientSource extends BaseSource {
     public String produce(String lastSourceOffset, int maxBatchSize, BatchMaker batchMaker) throws StageException {
         // Offsets can vary depending on the data source. Here we use an integer as an example only.
         long nextSourceOffset = 0;
-        if (lastSourceOffset != null) {
-            nextSourceOffset = Long.parseLong(lastSourceOffset);
-        }
-
+        if (lastSourceOffset != null) { nextSourceOffset = Long.parseLong(lastSourceOffset); }
         int numRecords = 0;
         maxBatchSize=getMaxBatchSize();
         // TODO: As the developer, implement your logic that reads from a data source in this method.
@@ -104,20 +105,17 @@ public abstract class CraneDataClientSource extends BaseSource {
                 lc801.closeConnect();
 
                 if(hasXPosition()){
-                    LaserDetector xPos801 = new LaserDetector(getXPosIpAddress(), getXPosPort(),getXPosCharacterSet().toString());
-                    //System.out.println(xPos801.getValue());
+                    LaserDetector xPos801 = new LaserDetector(getXPosIpAddress(), getXPosPort(), getXPosCharacterSet().toString());
                     map.put("xPosData", Field.create(xPos801.getValue()));
                 }
                 if(hasYPosition()){
-                    LaserDetector yPos801 = new LaserDetector(getYPosIpAddress(), getYPosPort(),getYPosCharacterSet().toString());
-                    //System.out.println(xPos801.getValue());
+                    LaserDetector yPos801 = new LaserDetector(getYPosIpAddress(), getYPosPort(), getYPosCharacterSet().toString());
                     map.put("YPosData", Field.create(yPos801.getValue()));
                 }
                 map.put("hasxPos", Field.create(hasXPosition()));
                 map.put("hasyPos", Field.create(hasYPosition()));
                 record.set(Field.create(map));
                 batchMaker.addRecord(record);
-                //System.out.println(resValue);
                 ++nextSourceOffset;
                 ++numRecords;
             }
@@ -126,11 +124,4 @@ public abstract class CraneDataClientSource extends BaseSource {
         }
         return String.valueOf(nextSourceOffset);
     }
-
-
-    public abstract String getYPosIpAddress();
-
-    public abstract int getYPosPort();
-
-    public abstract CraneDataCharacterSet getYPosCharacterSet();
 }
