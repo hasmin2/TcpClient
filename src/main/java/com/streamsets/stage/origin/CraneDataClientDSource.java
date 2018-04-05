@@ -177,9 +177,9 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             defaultValue = "localhost",
             label = "Laser Meter Y Position IP",
             displayPosition = 10,
-            group = "XPosition",
+            group = "YPosition",
             description = "Laser Meter Y Position IP Address for the HostConnect",
-            dependsOn = "hasXPosition",
+            dependsOn = "hasYPosition",
             triggeredByValue = "true"
     )
     public String yPosIpAddress;
