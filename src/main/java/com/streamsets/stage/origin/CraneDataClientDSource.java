@@ -76,7 +76,7 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             group = "Loadcell",
             description = "IP Address for the HostConnect"
     )
-    public String LoadcellIpAddress;
+    public String loadcellIpAddress;
     @ConfigDef(
             required = true,
             type = ConfigDef.Type.NUMBER,
@@ -88,7 +88,7 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             min = 1,
             max = 65535
     )
-    public int LoadcellPort;
+    public int loadcellPort;
 
     @ConfigDef(
             required = true,
@@ -113,7 +113,7 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             min = 0,
             max = 65535
     )
-    public int LoadcellStartCharacter;
+    public int loadcellStartCharacter;
 
     @ConfigDef(
             required = true,
@@ -126,7 +126,34 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             min = 0,
             max = 65535
     )
-    public int LoadcellEndCharacter;
+    public int loadcellEndCharacter;
+///////////////////////////////////////////////////////////////////////////////////
+    @ConfigDef(
+            required = true,
+            type = ConfigDef.Type.STRING,
+            defaultValue = "localhost",
+            label = "Laser Meter X Position IP",
+            displayPosition = 10,
+            group = "XPosition",
+            description = "Laser Meter X Position IP Address for the HostConnect",
+            dependsOn = "hasXPosition",
+            triggeredByValue = "true"
+    )
+    public String xPosIpAddress;
+    @ConfigDef(
+            required = true,
+            type = ConfigDef.Type.NUMBER,
+            defaultValue = "4001",
+            label = "Laser Meter X Position Port",
+            displayPosition = 10,
+            group = "XPosition",
+            description = "Laser Meter X Position Port number for the TcpConnect (1~65535 value only)",
+            min = 1,
+            max = 65535,
+            dependsOn = "hasXPosition",
+            triggeredByValue = "true"
+    )
+    public int xPosPort;
 
     @ConfigDef(
             required = true,
@@ -135,13 +162,14 @@ public class CraneDataClientDSource extends CraneDataClientSource {
             label = "Laser meter CharacterSet",
             displayPosition = 10,
             group = "XPosition",
-            description = "Define CharacterSets for XPostion incoming data",
+            description = "Define CharacterSets for Laser Meter X Position incoming data",
             dependsOn = "hasXPosition",
             triggeredByValue = "true"
     )
-
     @ValueChooserModel(CraneDataCharacterSetChooserValues.class)
     public CraneDataCharacterSet xPosCharacterSet = CraneDataCharacterSet.AUTO;
+///////////////////////////////////////////////////////////////////////////////////
+
 
     /** {@inheritDoc} */
     @Override
@@ -149,17 +177,21 @@ public class CraneDataClientDSource extends CraneDataClientSource {
     @Override
     public boolean hasYPosition() { return hasYPosition; }
     @Override
-    public String getLoadcellIPAddress() { return LoadcellIpAddress; }
+    public String getLoadcellIPAddress() { return loadcellIpAddress; }
     @Override
-    public int getLoadcellPort() { return LoadcellPort; }
+    public int getLoadcellPort() { return loadcellPort; }
     @Override
     public int getMaxBatchSize() { return maxBatchSize; }
     @Override
     public CraneDataCharacterSet getLoadcellCharacterSet(){ return loadcellCharacterSet; }
     @Override
-    public int getLoadcellStartCharacter() { return LoadcellStartCharacter; }
+    public int getLoadcellStartCharacter() { return loadcellStartCharacter; }
     @Override
-    public int getLoadcellEndCharacter() { return LoadcellEndCharacter; }
+    public int getLoadcellEndCharacter() { return loadcellEndCharacter; }
+    @Override
+    public String getXPosIpAddress() { return xPosIpAddress; }
+    @Override
+    public int getXPosPort() { return xPosPort; }
     @Override
     public CraneDataCharacterSet getXPosCharacterSet() { return xPosCharacterSet; }
 }

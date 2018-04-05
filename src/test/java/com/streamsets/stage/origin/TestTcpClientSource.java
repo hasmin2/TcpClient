@@ -28,30 +28,38 @@ import org.junit.Test;
 import java.util.List;
 
 public class TestTcpClientSource {
-    private static final int MAX_BATCH_SIZE = 5;
+    private static final int MAX_BATCH_SIZE = 1;
 
     @Test
     public void testOrigin() throws Exception {
         SourceRunner runner = new SourceRunner.Builder(CraneDataClientDSource.class)
-                .addConfiguration("ipAddress", "10.50.120.153")
-                .addConfiguration("port", 4001)
-                .addConfiguration("tcpCharacterSet", CraneDataCharacterSet.ISO8859_1)
+                .addConfiguration("hasXPosition", true)
+                .addConfiguration("hasYPosition", false)
+                .addConfiguration("xPosIpAddress", "10.50.120.153")
+                .addConfiguration("xPosPort", 44818)
+                .addConfiguration("xPosCharacterSet", CraneDataCharacterSet.ISO8859_1)
+                .addConfiguration("loadcellIpAddress", "10.50.120.153")
+                .addConfiguration("loadcellPort", 4001)
+                .addConfiguration("loadcellCharacterSet", CraneDataCharacterSet.ISO8859_1)
                 .addConfiguration("maxBatchSize", 1)
-                .addConfiguration("startCharacter", 170)
-                .addConfiguration("endCharacter", 187)
+                .addConfiguration("loadcellStartCharacter", 170)
+                .addConfiguration("loadcellEndCharacter", 187)
                 .addOutputLane("lane")
                 .build();
+
 
         try {
             runner.runInit();
 
             final String lastSourceOffset = null;
             StageRunner.Output output = runner.runProduce(lastSourceOffset, MAX_BATCH_SIZE);
-            Assert.assertEquals("5", output.getNewOffset());
+            Assert.assertEquals("1", output.getNewOffset());
             List<Record> records = output.getRecords().get("lane");
-            Assert.assertEquals(5, records.size());
-            Assert.assertTrue(records.get(0).has("/inputData"));
-            Assert.assertEquals("2151501", records.get(0).get("/inputData").getValueAsString());
+            Assert.assertEquals(1, records.size());
+            Assert.assertTrue(records.get(0).has("/loadcellData"));
+            Assert.assertEquals("2,15,15,0,1", records.get(0).get("/loadcellData").getValueAsString());
+            Assert.assertEquals("019e28", records.get(0).get("/xPosData").getValueAsString());
+
 
         } finally {
             runner.runDestroy();

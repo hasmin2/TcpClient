@@ -25,11 +25,13 @@ import com.streamsets.pipeline.api.Record;
 import com.streamsets.pipeline.api.StageException;
 import com.streamsets.pipeline.api.base.BaseSource;
 
+import javax.xml.xpath.XPath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,8 @@ public abstract class CraneDataClientSource extends BaseSource {
     public abstract CraneDataCharacterSet getLoadcellCharacterSet();
     public abstract int getLoadcellStartCharacter();
     public abstract int getLoadcellEndCharacter();
+    public abstract String getXPosIpAddress();
+    public abstract int getXPosPort();
     public abstract CraneDataCharacterSet getXPosCharacterSet();
     public abstract boolean hasXPosition();
     public abstract boolean hasYPosition();
@@ -89,48 +93,29 @@ public abstract class CraneDataClientSource extends BaseSource {
         // TODO: As the developer, implement your logic that reads from a data source in this method.
         // Create records and add to batch. Records must have a string id. This can include the source offset
         // or other metadata to help uniquely identify the record itself.
-        boolean isAutoCharacter = false;
-        if(getLoadcellCharacterSet().toString().equals("AUTO")){ isAutoCharacter = true; }
-        int startCharacter = getLoadcellStartCharacter();
-        int endCharacter = getLoadcellEndCharacter();
         while (numRecords < maxBatchSize) {
             Record record = getContext().createRecord(String.valueOf(nextSourceOffset));
             Map<String, Field> map = new HashMap<>();
-            //try (Socket socket = new Socket(getLoadcellIPAddress(), getLoadcellPort())) {
             try {
                 LoadCell lc801 = new LoadCell(getLoadcellIPAddress(), getLoadcellPort(), getLoadcellCharacterSet().toString());
-                if(hasXPosition()){
-                    LaserDetector xPos801 = new LaserDetector(getLoadcellIPAddress(), getLoadcellPort(),getXPosCharacterSet().toString());
-                }
                 lc801.makeConnect();
                 String resValue = lc801.getValue(getLoadcellStartCharacter(), getLoadcellEndCharacter());
-                System.out.println(resValue);
-                /*InputStream input = socket.getInputStream();
-                InputStreamReader reader;
-                if (isAutoCharacter) { reader = new InputStreamReader(input); }
-                else{ reader = new InputStreamReader(input, getLoadcellCharacterSet().toString()); }
-                int character;
-                StringBuilder data = new StringBuilder();
-                boolean readFlag = false;
-                boolean readStart = false;
-                while ((character = reader.read()) != -1) {
-                    if (startCharacter == character && !readStart) {
-                        readFlag = true;
-                        readStart = true;
-                        continue;
-                    }
-                    if (endCharacter == character && readStart) {
-                        data.deleteCharAt(data.length()-1);
-                        map.put("inputData", Field.create(String.valueOf(data)));
-                        record.set(Field.create(map));
-                        batchMaker.addRecord(record);
-                        break;
-                    }
-                    if (readFlag) {
-                        data.append(character);
-                        data.append(",");
-                    }
+                map.put("loadcellData", Field.create(resValue));
+                lc801.closeConnect();
+
+                if(hasXPosition()){
+                    LaserDetector xPos801 = new LaserDetector(getXPosIpAddress(), getXPosPort(),getXPosCharacterSet().toString());
+                    //System.out.println(xPos801.getValue());
+                    map.put("xPosData", Field.create(xPos801.getValue()));
+                }
+                /*if(hasYPosition()){
+                    LaserDetector yPos801 = new LaserDetector(getYPosIpAddress(), getYPosPort(),getYPosCharacterSet().toString());
+                    //System.out.println(xPos801.getValue());
+                    map.put("XPosData", Field.create(yPos801.getValue()));
                 }*/
+                record.set(Field.create(map));
+                batchMaker.addRecord(record);
+                //System.out.println(resValue);
                 ++nextSourceOffset;
                 ++numRecords;
             }
