@@ -111,7 +111,7 @@ public abstract class CraneDataClientSource extends BaseSource {
                 if(hasYPosition()){
                     LaserDetector yPos801 = new LaserDetector(getYPosIpAddress(), getYPosPort(),getYPosCharacterSet().toString());
                     //System.out.println(xPos801.getValue());
-                    map.put("XPosData", Field.create(yPos801.getValue()));
+                    map.put("YPosData", Field.create(yPos801.getValue()));
                 }
                 map.put("hasxPos", Field.create(hasXPosition()));
                 map.put("hasyPos", Field.create(hasYPosition()));
