@@ -28,7 +28,7 @@ import org.junit.Test;
 import java.util.List;
 
 public class TestTcpClientSource {
-    private static final int MAX_BATCH_SIZE = 1;
+    private static final int MAX_BATCH_SIZE = 5;
 
     @Test
     public void testOrigin() throws Exception {
@@ -55,7 +55,7 @@ public class TestTcpClientSource {
             StageRunner.Output output = runner.runProduce(lastSourceOffset, MAX_BATCH_SIZE);
             Assert.assertEquals("1", output.getNewOffset());
             List<Record> records = output.getRecords().get("lane");
-            Assert.assertEquals(1, records.size());
+            Assert.assertEquals(5, records.size());
             Assert.assertTrue(records.get(0).has("/loadcellData"));
             Assert.assertEquals("2,15,15,0,1", records.get(0).get("/loadcellData").getValueAsString());
             Assert.assertEquals("019e28", records.get(0).get("/xPosData").getValueAsString());

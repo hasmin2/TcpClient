@@ -18,11 +18,12 @@ public class LaserDetector {
         this.port = port;
         this.characterSet = characterSet;
     }
-    String getValue(){
+    String getValue() throws IOException {
         StringBuilder outputData = new StringBuilder();
+        InputStream input = null;
+        InputStreamReader reader = null;
         try (Socket socket = new Socket(hostName, port)) {
-            InputStream input = socket.getInputStream();
-            InputStreamReader reader;
+            input = socket.getInputStream();
             if(characterSet.equals("AUTO")){ reader = new InputStreamReader(input); }
             else { reader = new InputStreamReader(input, characterSet); }
             OutputStream output = socket.getOutputStream();
@@ -40,15 +41,17 @@ public class LaserDetector {
             for (idx=0;idx<68;idx++) {
                 character = reader.read();
                 if(64 <= idx){ outputData.insert(0, Integer.toHexString(character)); }
+                //outputData.insert(0, Integer.toHexString(character));
             }
             //System.out.println(Integer.parseInt(String.valueOf(outputData),16)/1000);
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
         } catch (IOException ex) {
             System.out.println("I/O error: " + ex.getMessage());
-        } finally {
-            return outputData.toString();
         }
+        if (reader != null) { reader.close(); }
+        if(input != null) { input.close(); }
+        return outputData.toString();
 
     }
 
